@@ -21,7 +21,7 @@ class Usuario{
             
        
 };
-class Emprestivo{
+class Emprestimo{
     private:
         string nomeLivro;
         string nomeUsuario;
@@ -30,7 +30,7 @@ class Emprestivo{
 
         
     public:
-        Emprestivo( string _nomeLivro, string _nomeUsuario, string _dataEmprestimo, string _dataDevolucao){          
+        Emprestimo( string _nomeLivro, string _nomeUsuario, string _dataEmprestimo, string _dataDevolucao){          
             nomeLivro = _nomeLivro;
             nomeUsuario = _nomeUsuario;
             dataEmprestimo = _dataEmprestimo;
@@ -81,6 +81,7 @@ class Biblioteca{
     static void addLivroBiblioteca(vector <Livro> &livros, const Livro& livro);
     static void listaLivroBiblioteca(vector <Livro> &livros);
     static void removerLivroBiblioteca(vector <Livro> &livros, const Livro& livro);
+    static void realizarEmprestimo(vector<Emprestimo> &, Usuario &, Livro &, string);
 };
 
 int main()
@@ -115,7 +116,7 @@ int main()
     cout << "CPF do usuario: " << usuario1.getCpf() << endl;
 
     // Criando um emprestimo
-    Emprestivo emprestimo1("O Senhor dos Aneis", "Joao", "2023-10-21", "2023-11-21");
+    Emprestimo emprestimo1("O Senhor dos Aneis", "Joao", "2023-10-21", "2023-11-21");
 
     cout << endl;
     cout << "---Emprestimo---" << endl;
@@ -173,28 +174,28 @@ void Usuario::setCpf(string _cpf){
 
  //////Getters e Setters  Emprestimo////
 
-string Emprestivo::getNomeLivro(){
+string Emprestimo::getNomeLivro(){
     return nomeLivro;
 }
-void Emprestivo::setNomeLivro(string _nomeLivro){
+void Emprestimo::setNomeLivro(string _nomeLivro){
     nomeLivro = _nomeLivro;
 }
-string Emprestivo::getNomeUsuario(){
+string Emprestimo::getNomeUsuario(){
     return nomeUsuario;
 }
-void Emprestivo::setNomeUsuario(string _nomeUsuario){
+void Emprestimo::setNomeUsuario(string _nomeUsuario){
     nomeUsuario = _nomeUsuario;
 }
-string Emprestivo::getDataEmprestimo(){
+string Emprestimo::getDataEmprestimo(){
     return dataEmprestimo;
 }
-void Emprestivo::setDataEmprestimo(string _dataEmprestimo){
+void Emprestimo::setDataEmprestimo(string _dataEmprestimo){
     dataEmprestimo = _dataEmprestimo;
 }
-string Emprestivo::getDataDevolucao(){
+string Emprestimo::getDataDevolucao(){
     return dataDevolucao;
 }
-void Emprestivo::setDataDevolucao(string _dataDevolucao){
+void Emprestimo::setDataDevolucao(string _dataDevolucao){
     dataDevolucao = _dataDevolucao;
 }
 
@@ -230,5 +231,11 @@ void Biblioteca::removerLivroBiblioteca(vector <Livro> &livros, const Livro& liv
         }
     }
         livros.push_back(livro);
+}
+
+void Biblioteca::realizarEmprestimo(vector<Emprestimo> &emprestimos, Usuario &usuario, Livro &livro, string data){
+    Emprestimo emprestimo = Emprestimo(livro.getTitulo(), usuario.getNome(), data, "Em andamento");
+
+    emprestimos.push_back(emprestimo);
 }
   
