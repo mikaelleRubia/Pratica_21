@@ -21,50 +21,29 @@ class Usuario{
             
        
 };
-class Emprestimo{
-    private:
-        string nomeLivro;
-        string nomeUsuario;
-        string dataEmprestimo;
-        string dataDevolucao;
-
-        
-    public:
-        Emprestimo( string _nomeLivro, string _nomeUsuario, string _dataEmprestimo, string _dataDevolucao){          
-            nomeLivro = _nomeLivro;
-            nomeUsuario = _nomeUsuario;
-            dataEmprestimo = _dataEmprestimo;
-            dataDevolucao = _dataDevolucao;
-        }
-
-        string getNomeLivro();
-        void setNomeLivro(string _nomeLivro);
-        string getNomeUsuario();
-        void setNomeUsuario(string _nomeUsuario);
-        string getDataEmprestimo();
-        void setDataEmprestimo(string _dataEmprestimo);
-        string getDataDevolucao();
-        void setDataDevolucao(string _dataDevolucao);
-};
 
 class Livro{
     private:
         string titulo;
         string autor;
         int numero_copias;
-        static vector<Livro> livros;
+        int qtd_emprestado; // Adicionei esse atributo para poder contar quantas copias desse livro foram emprestados
     public:
         Livro(string _titulo, string _autor, int _numero_copias){
             titulo = _titulo;
             autor = _autor;
             numero_copias = _numero_copias;
+            qtd_emprestado = 0;
         }
 
+        // Todos esses metodos eram para ser criados na classe Emprestimo e não em livro
         static void adicionarLivro(Livro livro);
         static bool emprestarLivro(const std::string& titulo, const std::string& nomeUsuario);
         static void listarLivros();
         static void listarLivrosEmprestadosPorUsuario(const std::string& nomeUsuario);
+        // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: //
 
+        string tostring() const;
 
         string getTitulo() const;
         void setTitulo(string _titulo);
@@ -72,11 +51,40 @@ class Livro{
         void setAutor(string _autor);
         int getNumero_copias() const;
         void setNumero_copias(int _numero_copias);
+        int getQtd_emprestado() const;
+        void setQtd_emprestado(int _qtd_emprestado);
         
 };
 
-class Biblioteca{
+class Emprestimo{
+    private:
+        Livro *livro;
+        Usuario *usuario; // é melhor ter um ponteiro de usuario pois presisamos do cpf para identificalo ou ao no lugar do nome colocar o cpf dele
+        string dataEmprestimo;
+        string dataDevolucao;
 
+        
+    public:
+        Emprestimo( Livro *_Livro, Usuario *_Usuario, string _dataEmprestimo, string _dataDevolucao){          
+            livro = _Livro;
+            usuario = _Usuario;
+            dataEmprestimo = _dataEmprestimo;
+            dataDevolucao = _dataDevolucao;
+            livro->setQtd_emprestado(livro->getQtd_emprestado() + 1);
+        }
+
+        Livro getLivro();
+        void setLivro(Livro *_Livro);
+        Usuario getUsuario();
+        void setUsuario(Usuario *_usuario);
+        string getDataEmprestimo();
+        void setDataEmprestimo(string _dataEmprestimo);
+        string getDataDevolucao();
+        void setDataDevolucao(string _dataDevolucao);
+};
+
+class Biblioteca{
+    // como falei ante aqui teria um vetor de livros
     public:
     static void addLivroBiblioteca(vector <Livro> &livros, const Livro& livro);
     static void listaLivroBiblioteca(vector <Livro> &livros);
@@ -84,21 +92,47 @@ class Biblioteca{
     static void realizarEmprestimo(vector<Emprestimo> &, Usuario &, Livro &, string);
 };
 
+bool disponibilidadeLivro(const Livro& _livro, const vector<Livro> &livros){
+    for (auto &livro : livros){
+        if (_livro.getTitulo() == livro.getTitulo()){
+            if(_livro.getQtd_emprestado() < _livro.getNumero_copias()){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void ListarLivros_Por_Usuario(Usuario &usuario,vector<Emprestimo> &emprestimos){
+    cout << "\nLivros emprestados para " << usuario.getNome() << ":" << endl;
+    cout << "_________________________________________________________________" << endl;
+    for (Emprestimo emprestimo : emprestimos){
+        if (emprestimo.getUsuario().getNome() == usuario.getNome()){
+            cout << "Titulo: " << emprestimo.getLivro().getTitulo() << endl;
+            cout << "Autor: " << emprestimo.getLivro().getAutor() << endl;
+            cout << "_________________________________________________________________" << endl;
+        }
+    }
+}
+
+
 int main()
 {
+    vector<Emprestimo> emprestimos;
+
     vector<Livro> livros;
     Livro livro1("Titulo 1", "Autor 1", 3);
     Livro livro2("Titulo 2", "Autor 2", 5);
     Livro livro3("O Senhor dos Aneis", "J.R.R. Tolkien", 10);
+    Livro livro4("Amantes aventureiros", "J.R.R. Tolkien", 1);
 
     Biblioteca::addLivroBiblioteca(livros, livro1);
     Biblioteca::addLivroBiblioteca(livros, livro2);
     Biblioteca::addLivroBiblioteca(livros, livro3);
+    Biblioteca::addLivroBiblioteca(livros, livro4);
 
     Biblioteca::listaLivroBiblioteca(livros);
 
-
-   
     cout << "Titulo: " << livro1.getTitulo() << endl;
     cout << "Autor: " << livro1.getAutor() << endl;
     cout << "Numero de copias: " << livro1.getNumero_copias() << endl;
@@ -116,16 +150,50 @@ int main()
     cout << "CPF do usuario: " << usuario1.getCpf() << endl;
 
     // Criando um emprestimo
-    Emprestimo emprestimo1("O Senhor dos Aneis", "Joao", "2023-10-21", "2023-11-21");
+    Emprestimo emprestimo1(&livro1, &usuario1, "2023-10-21", "2023-11-21");
+    
+
 
     cout << endl;
     cout << "---Emprestimo---" << endl;
     
-    cout << "Livro emprestado: " << emprestimo1.getNomeLivro() << endl;
-    cout << "Nome do usuario: " << emprestimo1.getNomeUsuario() << endl;
+    cout << "Livro emprestado: " << emprestimo1.getLivro().getTitulo() << endl;
+    cout << "Nome do usuario: " << emprestimo1.getUsuario().getNome() << endl;
     cout << "Data de emprestimo: " << emprestimo1.getDataEmprestimo() << endl;
     cout << "Data de devolucao: " << emprestimo1.getDataDevolucao() << endl;
-    return 0;
+
+    cout << endl;
+    cout << "Verificando disponibilidade do livro: ";
+    cout << livro4.getTitulo() << endl;
+    cout << endl;
+    // Verificando disponibilidade do livro
+    if (disponibilidadeLivro(livro4, livros)){
+        Emprestimo emprestimo2(&livro4, &usuario1, "2023-10-21", "2023-11-21");
+        
+        emprestimos.push_back(emprestimo2);
+        cout << "Livro disponivel para emprestimo!!" << endl;
+        cout << "emprestimo bem sucedido !!" << endl;
+    }else{
+        cout << "Livro indisponivel para emprestimo!!" << endl;
+    }
+    cout << "\nVerificando disponibilidade do livro: ";
+    cout << livro4.getTitulo() << endl;
+    cout << endl;
+    // Verificando disponibilidade do livro
+    
+    if (disponibilidadeLivro(livro4, livros)){
+        Emprestimo emprestimo2(&livro4, &usuario1, "2023-10-21", "2023-11-21");
+        emprestimos.push_back(emprestimo2);
+        cout << "Livro disponivel para emprestimo!!" << endl;
+        cout << "emprestimo bem sucedido !!" << endl;
+    }else{
+        cout << "Livro indisponivel para emprestimo!!" << endl;
+    }
+
+    cout << endl;
+    cout << "--- Emprestimos por Usuario ---" << endl;
+    ListarLivros_Por_Usuario(usuario1, emprestimos);
+
 
     return 0;
 }
@@ -154,6 +222,17 @@ void Livro::setNumero_copias(int _numero_copias){
         numero_copias = _numero_copias;
     }
 
+int Livro::getQtd_emprestado() const {
+    return qtd_emprestado;
+}
+
+void Livro::setQtd_emprestado(int _qtd_emprestado){
+    qtd_emprestado = _qtd_emprestado;
+}
+
+string Livro::tostring() const {
+    return "Titulo: " + getTitulo() + "\nAutor: " + getAutor() + "\nNumero de copias: " + to_string(numero_copias);
+}
 //////Getters e Setters  Usuarios////
 
 string Usuario::getNome(){
@@ -171,20 +250,19 @@ void Usuario::setCpf(string _cpf){
     cpf = _cpf;
 }
 
-
  //////Getters e Setters  Emprestimo////
 
-string Emprestimo::getNomeLivro(){
-    return nomeLivro;
+Livro Emprestimo::getLivro(){
+    return *livro;
 }
-void Emprestimo::setNomeLivro(string _nomeLivro){
-    nomeLivro = _nomeLivro;
+void Emprestimo::setLivro(Livro *_Livro){
+    livro = _Livro;
 }
-string Emprestimo::getNomeUsuario(){
-    return nomeUsuario;
+Usuario Emprestimo::getUsuario(){
+    return *usuario;
 }
-void Emprestimo::setNomeUsuario(string _nomeUsuario){
-    nomeUsuario = _nomeUsuario;
+void Emprestimo::setUsuario(Usuario *_usuario){
+    this->usuario = _usuario;
 }
 string Emprestimo::getDataEmprestimo(){
     return dataEmprestimo;
@@ -224,7 +302,7 @@ void Biblioteca::listaLivroBiblioteca(vector <Livro> &livros){
 }
 
 void Biblioteca::removerLivroBiblioteca(vector <Livro> &livros, const Livro& livro){
-    for (int i = 0; i < livros.size(); i++){
+    for (int i = 0; i < int(livros.size()); i++){
         if (livros[i].getAutor() == livro.getAutor() && livros[i].getTitulo() == livro.getTitulo()) {
             livros.erase(livros.begin() + i);
             return;
@@ -234,8 +312,8 @@ void Biblioteca::removerLivroBiblioteca(vector <Livro> &livros, const Livro& liv
 }
 
 void Biblioteca::realizarEmprestimo(vector<Emprestimo> &emprestimos, Usuario &usuario, Livro &livro, string data){
-    Emprestimo emprestimo = Emprestimo(livro.getTitulo(), usuario.getNome(), data, "Em andamento");
-
+    Emprestimo emprestimo = Emprestimo(&livro, &usuario, data, "Em andamento");
+    livro.setQtd_emprestado(livro.getQtd_emprestado() + 1);
     emprestimos.push_back(emprestimo);
 }
   
