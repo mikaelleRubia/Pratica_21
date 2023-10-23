@@ -36,13 +36,6 @@ class Livro{
             qtd_emprestado = 0;
         }
 
-        // Todos esses metodos eram para ser criados na classe Emprestimo e não em livro
-        static void adicionarLivro(Livro livro);
-        static bool emprestarLivro(const std::string& titulo, const std::string& nomeUsuario);
-        static void listarLivros();
-        static void listarLivrosEmprestadosPorUsuario(const std::string& nomeUsuario);
-        // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: //
-
         string tostring() const;
 
         string getTitulo() const;
@@ -59,7 +52,7 @@ class Livro{
 class Emprestimo{
     private:
         Livro *livro;
-        Usuario *usuario; // é melhor ter um ponteiro de usuario pois presisamos do cpf para identificalo ou ao no lugar do nome colocar o cpf dele
+        Usuario *usuario; 
         string dataEmprestimo;
         string dataDevolucao;
 
@@ -84,7 +77,6 @@ class Emprestimo{
 };
 
 class Biblioteca{
-    // como falei ante aqui teria um vetor de livros
     public:
     static void addLivroBiblioteca(vector <Livro> &livros, const Livro& livro);
     static void listaLivroBiblioteca(vector <Livro> &livros);
